@@ -9,6 +9,7 @@ using System.Threading;
 using SuperSocket.ClientEngine;
 using WebSocket4Net.Common;
 using WebSocket4Net.Protocol;
+using System.Diagnostics;
 
 namespace WebSocket4Net
 {
@@ -348,7 +349,17 @@ namespace WebSocket4Net
 
         void client_DataReceived(object sender, DataEventArgs e)
         {
+            debugLog("<=", e.Data, e.Offset, e.Length);
+
             OnDataReceived(e.Data, e.Offset, e.Length);
+        }
+
+        internal static void debugLog(string prefix, byte[] buffer, int offset = 0, int length = -1)
+        {
+            if (length == -1) length = buffer.Length;
+            Char[] chars = Encoding.UTF8.GetChars(buffer, offset, length);
+            String aString = new string(chars);
+            Debug.WriteLine(prefix + " (" + length + " bytes) [" + aString + "]");
         }
 
         void client_Error(object sender, ErrorEventArgs e)
@@ -656,7 +667,11 @@ namespace WebSocket4Net
             {
                 int left;
 
+                debugLog("figuring out framing and type for ", data, offset, length);
+
                 var commandInfo = CommandReader.GetCommandInfo(data, offset, length, out left);
+
+                debugLog("detailed processing", data, offset, length - left);
 
                 if (CommandReader.NextCommandReader != null)
                     CommandReader = CommandReader.NextCommandReader;
@@ -664,12 +679,17 @@ namespace WebSocket4Net
                 if (commandInfo != null)                
                     ExecuteCommand(commandInfo);
 
+                debugLog("detailed processing", data, offset, length - left);
+
+                Debug.WriteLine("processed or stored. Remaining to inject: " + left);
+
                 if (left <= 0)
                     break;
 
                 offset = offset + length - left;
                 length = left;
             }
+            Debug.WriteLine("Finished processed data received.");
         }
 
         internal void FireError(Exception error)

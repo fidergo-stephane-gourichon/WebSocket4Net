@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SuperSocket.ClientEngine;
+using System.Diagnostics;
 
 namespace WebSocket4Net.Protocol
 {
@@ -58,6 +59,7 @@ namespace WebSocket4Net.Protocol
 		// We've not found the HeaderTerminator yet.  We'll be
 		// called again when more data arrives.  --
 		// fidergo-stephane-gourichon
+                Debug.WriteLine("Incomplete command, will keep for later analysis.");
                 AddArraySegment(readBuffer, offset, length);
                 return null;
             }
@@ -70,7 +72,7 @@ namespace WebSocket4Net.Protocol
 	    
             int findLen = result - offset;
             string handshake = string.Empty;
-
+            
             if (this.BufferSegments.Count > 0)
             {
                 if (findLen > 0)
@@ -115,6 +117,8 @@ namespace WebSocket4Net.Protocol
 		    // with `prevMatch` bytes of the
 		    // `HeaderTerminator` that we have to shave
 		    // off. -- fidergo-stephane-gourichon
+
+                    Debug.WriteLine("The marker was split. We just found the end of it after finding the beginning of it in a previous pass.");
 
                     handshake = this.BufferSegments.Decode(Encoding.UTF8, 0, this.BufferSegments.Count - prevMatched);
                 }

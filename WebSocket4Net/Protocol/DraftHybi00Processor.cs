@@ -97,6 +97,7 @@ namespace WebSocket4Net.Protocol
             int bytesCount = Encoding.UTF8.GetBytes(message, 0, message.Length, sendBuffer, 1);
             sendBuffer[1 + bytesCount] = EndByte;
 
+            WebSocket.debugLog("SendMessage=>", sendBuffer, 0, bytesCount + 2);
             websocket.Client.Send(sendBuffer, 0, bytesCount + 2);
         }
 
@@ -116,6 +117,7 @@ namespace WebSocket4Net.Protocol
             if (websocket == null || websocket.State == WebSocketState.Closed)
                 return;
 
+            WebSocket.debugLog("SendCloseHandshake=>", CloseHandshake, 0, CloseHandshake.Length);
             websocket.Client.Send(CloseHandshake, 0, CloseHandshake.Length);
         }
 
@@ -201,6 +203,7 @@ namespace WebSocket4Net.Protocol
 
             byte[] handshakeBuffer = Encoding.UTF8.GetBytes(handshakeBuilder.ToString());
 
+            WebSocket.debugLog("handshake=>", handshakeBuffer);
             websocket.Client.Send(handshakeBuffer, 0, handshakeBuffer.Length);
         }
 

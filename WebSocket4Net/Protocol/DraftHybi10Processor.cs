@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using SuperSocket.ClientEngine;
-
+using System.Diagnostics;
 
 namespace WebSocket4Net.Protocol
 {
@@ -108,6 +108,7 @@ namespace WebSocket4Net.Protocol
 
             byte[] handshakeBuffer = Encoding.UTF8.GetBytes(handshakeBuilder.ToString());
 
+            WebSocket.debugLog("handshake=>", handshakeBuffer);
             websocket.Client.Send(handshakeBuffer, 0, handshakeBuffer.Length);
         }
 
@@ -119,6 +120,7 @@ namespace WebSocket4Net.Protocol
         private void SendMessage(WebSocket websocket, int opCode, string message)
         {
             byte[] playloadData = Encoding.UTF8.GetBytes(message);
+            WebSocket.debugLog("SendMessage => opCode="+opCode, playloadData, 0, playloadData.Length);
             SendDataFragment(websocket, opCode, playloadData, 0, playloadData.Length);
         }
 
@@ -188,6 +190,7 @@ namespace WebSocket4Net.Protocol
 
         public override void SendData(WebSocket websocket, byte[] data, int offset, int length)
         {
+            Debug.WriteLine("SendData, " + length + " bytes.");
             SendDataFragment(websocket, OpCode.Binary, data, offset, length);
         }
 
